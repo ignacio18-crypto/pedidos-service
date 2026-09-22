@@ -30,12 +30,13 @@ public class SecurityConfig {
     @Value("${cognito.app-client-id}")
     private String appClientId;
 
-      @Bean
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CLIENTE")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_CLIENTE")
@@ -50,6 +51,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder decoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuerUri);
